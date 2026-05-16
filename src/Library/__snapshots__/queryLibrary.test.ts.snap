@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getQueries getQueries returns the expected Queries 1`] = `
+[
+  {
+    "id": "12c427bb-625f-48e5-802e-66b28acee7c2",
+    "text": "More Queries/Epics and Features Query",
+  },
+  {
+    "id": "786c440f-34f7-4e5f-a9c4-a8ac0016704f",
+    "text": "More Queries/Even More Queries/First Even More Query",
+  },
+  {
+    "id": "0d6c0aba-ed6b-468e-8816-19ecc4a73c7e",
+    "text": "More Queries/Even More Queries/Second Even More Query",
+  },
+  {
+    "id": "c01a9ec8-9cb2-4aea-8522-fabe615a014b",
+    "text": "More Queries/Features and Children Query",
+  },
+  {
+    "id": "fe1b344c-21e2-43d2-b7c3-1ba26aa063a4",
+    "text": "Work items that we care about a little",
+  },
+  {
+    "id": "cda04b6c-519a-4de7-ba1e-9c9adee2f643",
+    "text": "Work items that we care about a lot",
+  },
+  {
+    "id": "0752c7f7-7785-49b6-ab53-eabad74a601d",
+    "text": "Work items that we care about a lot more",
+  },
+  {
+    "id": "407191f5-f7bd-4cc4-9e4c-c204473b8541",
+    "text": "Work items that we care about a whole lot more",
+  },
+  {
+    "id": "27503d20-2eff-4bce-ae30-91d4ad361f8a",
+    "text": "Work items that we care about more",
+  },
+  {
+    "id": "df1de549-09c0-4799-bc12-04682619a730",
+    "text": "Work items that we care about the absolutely most",
+  },
+  {
+    "id": "2b7e7e85-2d88-42d9-8d9d-40f65efce9d0",
+    "text": "Work items that we care about the most",
+  },
+]
+`;
+
+exports[`getQueryFolders getQueryFolders returns the expected tree structure 1`] = `
+[
+  {
+    "id": "0752c7f7-7785-49b6-ab53-eabad74a601d",
+    "name": "Work items that we care about a lot more",
+  },
+  {
+    "id": "407191f5-f7bd-4cc4-9e4c-c204473b8541",
+    "name": "Work items that we care about a whole lot more",
+  },
+  {
+    "id": "cda04b6c-519a-4de7-ba1e-9c9adee2f643",
+    "name": "Work items that we care about a lot",
+  },
+  {
+    "id": "27503d20-2eff-4bce-ae30-91d4ad361f8a",
+    "name": "Work items that we care about more",
+  },
+  {
+    "id": "2b7e7e85-2d88-42d9-8d9d-40f65efce9d0",
+    "name": "Work items that we care about the most",
+  },
+  {
+    "id": "fe1b344c-21e2-43d2-b7c3-1ba26aa063a4",
+    "name": "Work items that we care about a little",
+  },
+  {
+    "id": "df1de549-09c0-4799-bc12-04682619a730",
+    "name": "Work items that we care about the absolutely most",
+  },
+  {
+    "children": [
+      {
+        "id": "c01a9ec8-9cb2-4aea-8522-fabe615a014b",
+        "name": "Features and Children Query",
+      },
+      {
+        "id": "12c427bb-625f-48e5-802e-66b28acee7c2",
+        "name": "Epics and Features Query",
+      },
+      {
+        "children": [
+          {
+            "id": "786c440f-34f7-4e5f-a9c4-a8ac0016704f",
+            "name": "First Even More Query",
+          },
+          {
+            "id": "0d6c0aba-ed6b-468e-8816-19ecc4a73c7e",
+            "name": "Second Even More Query",
+          },
+        ],
+        "id": "89626995-3d87-48ca-93f1-6e3c9c5cfbba",
+        "name": "Even More Queries",
+      },
+    ],
+    "id": "9c1adcf7-5a74-40d8-9ddb-9e9a8ecaa3c0",
+    "name": "More Queries",
+  },
+]
+`;

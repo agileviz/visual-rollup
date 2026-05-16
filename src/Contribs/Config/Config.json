@@ -1,0 +1,15 @@
+{
+  "contributions": [
+    {
+      "id": "visualquerywidget-configuration",
+      "type": "ms.vss-dashboards-web.widget-configuration",
+      "targets": ["ms.vss-dashboards-web.widget-configuration"],
+      "properties": {
+        "name": "Visual Rollup Configuration",
+        "description": "Dashboard widget to visually display status of parent/child work items.",
+        "uri": "dist/Config/Config.html"
+      }
+    }
+  ]
+}
+  

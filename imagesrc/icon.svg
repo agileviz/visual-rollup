@@ -1,0 +1,28 @@
+<svg width="196" height="196" viewBox="0 0 196 196" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="pill1"><rect x="24" y="36" width="148" height="28" rx="6"/></clipPath>
+    <clipPath id="pill2"><rect x="24" y="84" width="100" height="28" rx="6"/></clipPath>
+    <clipPath id="pill3"><rect x="24" y="132" width="56" height="28" rx="6"/></clipPath>
+  </defs>
+
+  <!-- Bar 1 (large, 148w) — 70% green / 20% blue / 10% grey -->
+  <g clip-path="url(#pill1)">
+    <rect x="24"  y="36" width="104" height="28" fill="#339933"/>
+    <rect x="128" y="36" width="30"  height="28" fill="#007acc"/>
+    <rect x="158" y="36" width="14"  height="28" fill="#b2b2b2"/>
+  </g>
+
+  <!-- Bar 2 (medium, 100w) — 60% green / 25% blue / 15% grey -->
+  <g clip-path="url(#pill2)">
+    <rect x="24"  y="84" width="60" height="28" fill="#339933"/>
+    <rect x="84"  y="84" width="25" height="28" fill="#007acc"/>
+    <rect x="109" y="84" width="15" height="28" fill="#b2b2b2"/>
+  </g>
+
+  <!-- Bar 3 (small, 56w) — 60% green / 25% blue / 15% grey -->
+  <g clip-path="url(#pill3)">
+    <rect x="24" y="132" width="34" height="28" fill="#339933"/>
+    <rect x="58" y="132" width="14" height="28" fill="#007acc"/>
+    <rect x="72" y="132" width="8"  height="28" fill="#b2b2b2"/>
+  </g>
+</svg>

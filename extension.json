@@ -1,0 +1,69 @@
+{
+    "manifestVersion": 1,
+    "id": "VisualRollup",
+    "publisher": "AgileViz",
+    "public": true,
+    "galleryFlags": [],
+    "version": "0.9.6",
+    "scopes": ["vso.work"],
+    "name": "Visual Rollup",
+    "description": "Parent work-item progress, rolled up from children's states — driven by any shared query.",
+    "categories": [
+        "Azure Boards"
+    ],
+    "targets": [
+        {"id": "Microsoft.VisualStudio.Services.Cloud"}
+    ],
+    "icons": {
+        "default": "static/icon.png"
+    },
+    "tags": [
+        "dashboard",
+        "widget",
+        "agile",
+        "scrum",
+        "visual",
+        "progress",
+        "work item",
+        "hierarchy",
+        "states",
+        "query",
+        "rollup"
+      ],
+    "repository": {
+        "type": "git",
+        "uri": "https://github.com/agileviz/visual-rollup"
+    },
+    "content": {
+        "License": {
+            "path": "LICENSE"
+        },
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "links": {
+        "support": {
+          "uri": "https://agileviz.com/plugins/visual-rollup/"
+        },
+        "repository": {
+          "uri": "https://github.com/agileviz/visual-rollup"
+        },
+        "issues": {
+          "uri": "https://github.com/agileviz/visual-rollup/issues"
+        },
+        "privacypolicy": {
+          "uri": "https://agileviz.com/privacy/"
+        }
+      },
+    "files": [
+        {
+            "path": "static",
+            "addressable": true
+        },
+        {
+            "path": "dist",
+            "addressable": true
+        }
+    ]
+}
