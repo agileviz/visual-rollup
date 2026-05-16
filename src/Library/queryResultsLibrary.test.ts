@@ -153,13 +153,13 @@ describe('processTreeQuery', () => {
     it('flattens all descendants under each level-1 root when treeLevel=1', async () => {
         const data = await processTreeQuery(treeQueryResults, 1);
         // displayIds at level=1 = [100, 101]
-        const ids = data.map(d => d.id).sort();
+        const ids = data.map(d => d.id).sort((a, b) => a - b);
         expect(ids).toEqual([100, 101]);
 
         // 100 has 5 descendants flattened: 200, 201, 300, 301, 302
         const root100 = data.find(d => d.id === 100)!;
         expect(root100.hasChildren).toBe(true);
-        expect(root100.children.map(c => c.id).sort()).toEqual([200, 201, 300, 301, 302]);
+        expect(root100.children.map(c => c.id).sort((a, b) => a - b)).toEqual([200, 201, 300, 301, 302]);
         // 3 of 5 are "Done" (Completed); 1 "New" (Proposed); 1 "Committed" (InProgress)
         expect(root100.percentComplete).toBe("3/5");
 
@@ -172,11 +172,11 @@ describe('processTreeQuery', () => {
     it('selects mid-level items as display rows when treeLevel=2', async () => {
         const data = await processTreeQuery(treeQueryResults, 2);
         // displayIds at level=2 = [200, 201]; 101 has no children so it drops out
-        const ids = data.map(d => d.id).sort();
+        const ids = data.map(d => d.id).sort((a, b) => a - b);
         expect(ids).toEqual([200, 201]);
 
         const row200 = data.find(d => d.id === 200)!;
-        expect(row200.children.map(c => c.id).sort()).toEqual([300, 301]);
+        expect(row200.children.map(c => c.id).sort((a, b) => a - b)).toEqual([300, 301]);
         expect(row200.percentComplete).toBe("1/2");  // 300 Done, 301 New
 
         const row201 = data.find(d => d.id === 201)!;
@@ -194,7 +194,7 @@ describe('processTreeQuery', () => {
         const row200 = data.find(d => d.id === 200)!;
         expect(row200.wit).toBe("Product Backlog Item");
         expect(row200.parentStateCategories).toHaveLength(4);
-        const cats = row200.parentStateCategories.map(c => c.stateCategory).sort();
+        const cats = row200.parentStateCategories.map(c => c.stateCategory).sort((a, b) => a.localeCompare(b));
         expect(cats).toEqual(["Completed", "InProgress", "Proposed", "Removed"]);
         // First-encountered color wins: PBI's "New" (b2b2b2) is listed before
         // "Approved" (also b2b2b2) in the WIT's state list, so Proposed bucket
@@ -207,7 +207,7 @@ describe('processTreeQuery', () => {
 
     it('selects leaf items with empty children when treeLevel matches max depth', async () => {
         const data = await processTreeQuery(treeQueryResults, 3);
-        const ids = data.map(d => d.id).sort();
+        const ids = data.map(d => d.id).sort((a, b) => a - b);
         expect(ids).toEqual([300, 301, 302]);
         for (const row of data) {
             expect(row.hasChildren).toBe(false);
@@ -219,7 +219,7 @@ describe('processTreeQuery', () => {
         // Fixture is 3 levels deep; treeLevel=5 should still terminate, returning
         // the deepest non-empty level (level 3) rather than [] or hanging.
         const data = await processTreeQuery(treeQueryResults, 5);
-        const ids = data.map(d => d.id).sort();
+        const ids = data.map(d => d.id).sort((a, b) => a - b);
         expect(ids).toEqual([300, 301, 302]);
     });
 
