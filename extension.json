@@ -4,7 +4,7 @@
     "publisher": "AgileViz",
     "public": true,
     "galleryFlags": [],
-    "version": "0.9.6",
+    "version": "0.9.7",
     "scopes": ["vso.work"],
     "name": "Visual Rollup",
     "description": "Parent work-item progress, rolled up from children's states — driven by any shared query.",

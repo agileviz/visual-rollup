@@ -258,9 +258,9 @@ export async function processQueryType1 (queryResults: WorkItemQueryResult) : Pr
         if (typeof topWI.relations != 'undefined') {
             for (let link of topWI.relations) {
                 if (link.attributes.name === "Child") {
-                    let childId = link.url.match(/\d+$/);
-                    if (childId !== null) {
-                        ids.push(+childId);
+                    const lastSegment = link.url.substring(link.url.lastIndexOf("/") + 1);
+                    if (/^\d+$/.test(lastSegment)) {
+                        ids.push(+lastSegment);
                     }
                 }
             }
@@ -290,10 +290,11 @@ export async function processQueryType1 (queryResults: WorkItemQueryResult) : Pr
         if (typeof topWI.relations != 'undefined') {
             for (let link of topWI.relations) {
                 if (link.attributes.name === "Child") {
-                    let childId = link.url.match(/\d+$/);
-                    if (childId !== null) {
-                        children.push(+childId[0]);
-                        ids.push(+childId);
+                    const lastSegment = link.url.substring(link.url.lastIndexOf("/") + 1);
+                    if (/^\d+$/.test(lastSegment)) {
+                        const childId = +lastSegment;
+                        children.push(childId);
+                        ids.push(childId);
                     }
                 }
             }

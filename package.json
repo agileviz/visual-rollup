@@ -1,6 +1,6 @@
 {
   "name": "visual-rollup",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "description": "Parent work-item progress, rolled up from children's states — driven by any shared query.",
   "keywords": [
     "Azure DevOps",
