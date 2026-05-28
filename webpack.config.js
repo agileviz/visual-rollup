@@ -41,28 +41,11 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.scss$/,
-                    use: ["style-loader", { loader: "css-loader", options: { sourceMap: true } }, "resolve-url-loader", { loader: "sass-loader", options: { sourceMap: true, sassOptions: { quietDeps: true, silenceDeprecations: ["legacy-js-api", "import"] } } }]
+                    use: ["style-loader", { loader: "css-loader", options: { sourceMap: true } }, { loader: "sass-loader", options: { sourceMap: true, sassOptions: { quietDeps: true, silenceDeprecations: ["legacy-js-api", "import"] } } }]
                 },
                 {
                     test: /\.css$/,
                     use: ["style-loader", "css-loader"],
-                },
-                {
-                    test: /\.[woff2|woff]$/,
-                    use: [{
-                        loader: "file-loader",
-                        options: {
-                            name: "fonts/[name].[ext]"
-                        }
-                    }]
-                },
-                {
-                    test: /\.html$/,
-                    loader: "file-loader"
-                },
-                {
-                    test: /\.png$/,
-                    loader: "file-loader"
                 }
             ]
         },
@@ -87,7 +70,30 @@ module.exports = (env, argv) => {
             headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Methods": "*"
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Private-Network": "true"
+            },
+            // webpack-dev-server's `headers` config doesn't always reach the
+            // `static` middleware paths (known quirk). Apply the PNA header
+            // explicitly via setupMiddlewares so every response carries it,
+            // including static assets like static/icon.png and the iframe HTML
+            // that ADO loads on click. Also explicitly answer OPTIONS preflight
+            // requests — Chrome PNA increasingly sends preflights for cross-
+            // origin private-network subresources, and webpack-dev-server's
+            // default 404 for OPTIONS on static paths fails the preflight.
+            setupMiddlewares: (middlewares, devServer) => {
+                devServer.app.use((req, res, next) => {
+                    res.setHeader("Access-Control-Allow-Private-Network", "true");
+                    res.setHeader("Access-Control-Allow-Origin", "*");
+                    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                    res.setHeader("Access-Control-Allow-Headers", "*");
+                    if (req.method === "OPTIONS") {
+                        res.status(204).end();
+                        return;
+                    }
+                    next();
+                });
+                return middlewares;
             },
             // No HMR — ADO iframes can't receive WS messages for hot reload.
             // Refresh the ADO dashboard page manually after webpack recompiles.
