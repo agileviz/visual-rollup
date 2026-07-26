@@ -1,6 +1,9 @@
 import "./Config.scss";
 import "slim-select/styles";
 import SlimSelect from "slim-select";
+// Aliased on import: slim-select's Option would otherwise shadow the DOM's
+// global Option (HTMLOptionElement) inside this file.
+import type { Option as SlimOption, Optgroup as SlimOptgroup } from "slim-select";
 import * as SDK from "azure-devops-extension-sdk";
 import * as Dashboard from "azure-devops-extension-api/Dashboard";
 import { streamQueryFolders, getQueryType, getTreeQueryDepth } from "../../Library/queryLibrary";
@@ -278,7 +281,11 @@ class VisualQueryWidgetConfig implements Dashboard.IWidgetConfiguration {
             // query..." mid-stream while subsequent folders' contents arrive.
             const currentSelectedId = this.state.queryId;
 
-            const data: Array<any> = [{
+            // Exactly what SlimSelect.setData() accepts: a mix of bare options
+            // (the placeholder and any query sitting outside a folder) and
+            // optgroups (one per top-level folder). Partial<> because slim-select
+            // fills in the rest of each class's fields itself.
+            const data: Array<Partial<SlimOption> | Partial<SlimOptgroup>> = [{
                 placeholder: true,
                 text: isLoading ? "Loading queries…" : "Select a shared query…"
             }];
