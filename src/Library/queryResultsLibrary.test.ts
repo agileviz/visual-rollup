@@ -35,7 +35,7 @@ enum WorkItemExpand {
 
 describe('createWorkItemBatchRequest', () => {
 
-    let ids = [4, 6, 7, 9, 11];
+    const ids = [4, 6, 7, 9, 11];
 
     it('does not create fields list for WorkItemTracking.WorkItemExpand.Fields', () => {
         expect(createWorkItemBatchRequest(new Date(Date.UTC(1960, 10, 29, 1, 34, 0, 0)), WorkItemExpand.Fields, ids)).toMatchSnapshot();

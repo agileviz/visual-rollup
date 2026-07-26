@@ -67,7 +67,7 @@ export async function getQueryResults (id : string) : Promise<WorkItemQueryResul
 const treeFixtureIdSet = new Set<number>(treeQueryFieldResults.map(wi => wi.id));
 
 // get a batch of up to 200 work items given work item IDs
-export async function getWorkItems (workItemRequest: WorkItemBatchGetRequest, project?: string) : Promise<Array<WorkItem>> {
+export async function getWorkItems (workItemRequest: WorkItemBatchGetRequest, _project?: string) : Promise<Array<WorkItem>> {
 
     // Empty-ids early return — keeps the empty-tree test quiet (no
     // "new data needed for adoLibrary mock?" warning) and matches what

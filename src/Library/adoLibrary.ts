@@ -3,11 +3,15 @@ import * as SDK from "azure-devops-extension-sdk";
 import { QueryHierarchyItem, WorkItemTrackingRestClient, QueryExpand,
         WorkItemQueryResult, WorkItemBatchGetRequest, WorkItem, WorkItemStateColor } from "azure-devops-extension-api/WorkItemTracking";
 
-import { getClient, IProjectPageService, CommonServiceIds } from 'azure-devops-extension-api/Common';
+import { getClient, IProjectInfo, IProjectPageService, CommonServiceIds } from 'azure-devops-extension-api/Common';
 
-let projectInfoService : any;
-let project : any;
-let workItemTrackingRestClient : any;
+// Typed as always-defined rather than `| undefined`: every exported entrypoint
+// awaits ensureProject() before touching these, and ensureProject() throws
+// rather than leaving `project` unset. Modelling the optional case here would
+// only push non-null assertions out to every call site.
+let projectInfoService : IProjectPageService;
+let project : IProjectInfo;
+let workItemTrackingRestClient : WorkItemTrackingRestClient;
 
 // sessionStorage-backed cache for the folder-tree API calls so reopening the
 // widget config in the same browser session reuses the previously-fetched tree
@@ -38,10 +42,11 @@ function cacheSet<T>(key: string, data: T): void {
 async function ensureProject(): Promise<void> {
     if (project && workItemTrackingRestClient) return;
     projectInfoService = await SDK.getService<IProjectPageService>(CommonServiceIds.ProjectPageService);
-    project = await projectInfoService.getProject();
-    if (typeof project === "undefined") {
+    const fetchedProject = await projectInfoService.getProject();
+    if (typeof fetchedProject === "undefined") {
         throw new Error("Project is undefined");
     }
+    project = fetchedProject;
     workItemTrackingRestClient = getClient(WorkItemTrackingRestClient);
 }
 
@@ -85,11 +90,20 @@ export async function getRootQueries() : Promise<Array<QueryHierarchyItem>> {
 }
 
 // get a query and it's children from ADO, to build complete tree
-export async function getQueryItem<QueryHierarchyItem>(queryID :string) : Promise<QueryHierarchyItem> {
+//
+// The type parameter was previously *named* QueryHierarchyItem, which shadowed
+// the imported interface of the same name and made this function return whatever
+// the caller asked for, unchecked — which is why call sites pass <any>. Renamed
+// to T and defaulted to the real QueryHierarchyItem so the shadowing is gone
+// without changing any call site. The `as T` is the remaining seam: callers can
+// still name a type the payload was never checked against. Dropping the generic
+// entirely (and the <any> at the four call sites in queryLibrary.ts) is the real
+// fix and belongs with the wider no-explicit-any pass.
+export async function getQueryItem<T = QueryHierarchyItem>(queryID :string) : Promise<T> {
     await ensureProject();
 
     const cacheKey = `item-${project.id}-${queryID}`;
-    const cached = cacheGet<QueryHierarchyItem>(cacheKey);
+    const cached = cacheGet<T>(cacheKey);
     if (cached) return cached;
 
     // Depth=2 is the MAXIMUM ADO accepts for this parameter (TF400898 / "depth
@@ -100,7 +114,7 @@ export async function getQueryItem<QueryHierarchyItem>(queryID :string) : Promis
     // fallback to reach the leaves.
     const item = await workItemTrackingRestClient.getQuery(project.id, queryID, QueryExpand.None, 2, false);
     cacheSet(cacheKey, item);
-    return item;
+    return item as T;
 }
 
 // get query results (data) given query ID
@@ -144,7 +158,7 @@ export async function getWorkItemTypeStates (wit : string) : Promise<Array<WorkI
     const projectService = await SDK.getService<IProjectPageService>(CommonServiceIds.ProjectPageService);
     let project = await projectService.getProject();
     if (typeof project === "undefined") project = {name: "", id: ""};
-    let workItemTrackingRestClient = getClient(WorkItemTrackingRestClient);
+    const workItemTrackingRestClient = getClient(WorkItemTrackingRestClient);
 
     return workItemTrackingRestClient.getWorkItemTypeStates(project.id, wit);
 }

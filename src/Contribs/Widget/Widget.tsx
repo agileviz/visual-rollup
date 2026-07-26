@@ -5,7 +5,7 @@ import { getWorkItemsByQueryID, workItemHierachyEntry, workItemsByStateCategoryP
          workItemsByStateCategoryCompletedFirst, workItemsByStateCategoryInProgressFirst,
          workItemsByPriority, buildLegendData } from "../../Library/queryResultsLibrary";
 import { getOrgAndProject } from "../../Library/adoLibrary";
-import { widgetCustomSettings, sanitizeSettings } from "../../Library/widgetSettings";
+import { sanitizeSettings } from "../../Library/widgetSettings";
 
 interface WidgetState {
     title: string;
