@@ -91,19 +91,15 @@ export async function getRootQueries() : Promise<Array<QueryHierarchyItem>> {
 
 // get a query and it's children from ADO, to build complete tree
 //
-// The type parameter was previously *named* QueryHierarchyItem, which shadowed
-// the imported interface of the same name and made this function return whatever
-// the caller asked for, unchecked — which is why call sites pass <any>. Renamed
-// to T and defaulted to the real QueryHierarchyItem so the shadowing is gone
-// without changing any call site. The `as T` is the remaining seam: callers can
-// still name a type the payload was never checked against. Dropping the generic
-// entirely (and the <any> at the four call sites in queryLibrary.ts) is the real
-// fix and belongs with the wider no-explicit-any pass.
-export async function getQueryItem<T = QueryHierarchyItem>(queryID :string) : Promise<T> {
+// This was previously generic, with a type parameter *named* QueryHierarchyItem
+// that shadowed the imported interface — so the function returned whatever the
+// caller asked for, unchecked, and every call site passed <any>. The generic is
+// gone: getQuery() returns a QueryHierarchyItem, so that is what this returns.
+export async function getQueryItem(queryID :string) : Promise<QueryHierarchyItem> {
     await ensureProject();
 
     const cacheKey = `item-${project.id}-${queryID}`;
-    const cached = cacheGet<T>(cacheKey);
+    const cached = cacheGet<QueryHierarchyItem>(cacheKey);
     if (cached) return cached;
 
     // Depth=2 is the MAXIMUM ADO accepts for this parameter (TF400898 / "depth
@@ -114,7 +110,7 @@ export async function getQueryItem<T = QueryHierarchyItem>(queryID :string) : Pr
     // fallback to reach the leaves.
     const item = await workItemTrackingRestClient.getQuery(project.id, queryID, QueryExpand.None, 2, false);
     cacheSet(cacheKey, item);
-    return item as T;
+    return item;
 }
 
 // get query results (data) given query ID

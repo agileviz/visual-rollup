@@ -1,5 +1,10 @@
 import { getRootQueries, getQueryItem, getQueryResults } from "./adoLibrary";
 
+// Type-only import: jest.config.js maps azure-devops-extension-api/* to an
+// empty AMD stub, so a value import here would resolve to nothing under Jest.
+// `import type` is erased at compile time and never reaches the module graph.
+import type { QueryHierarchyItem } from "azure-devops-extension-api/WorkItemTracking";
+
 export interface queryListEntry { text: string, id: string };
 export interface queryItem { id: string, name: string };
 export interface queryFolder { id: string, name: string, children: Array<queryFolder | queryItem> };
@@ -18,26 +23,26 @@ function byName(a: { name?: string }, b: { name?: string }): number {
     return String(a?.name || "").localeCompare(String(b?.name || ""), undefined, { sensitivity: "base" });
 }
 
-async function collectQueries(items: Array<any>, result: Array<queryListEntry>): Promise<void> {
+async function collectQueries(items: Array<QueryHierarchyItem>, result: Array<queryListEntry>): Promise<void> {
     for (const item of items) {
         if (item.isPublic === false) continue;
         if (item.isFolder) {
             if (!item.hasChildren) continue;
-            let children: Array<any> = item.children || [];
+            let children: Array<QueryHierarchyItem> = item.children || [];
             if (children.length === 0) {
-                const folder = await getQueryItem<any>(item.id);
+                const folder = await getQueryItem(item.id);
                 children = folder?.children || [];
             }
             await collectQueries(children, result);
         } else if (item.queryType === 1 || item.queryType === 2 || item.queryType === 3) {
-            const text = (item.path as string).replace(/^Shared Queries\//, '');
+            const text = item.path.replace(/^Shared Queries\//, '');
             result.push({ text, id: item.id });
         }
     }
 }
 
-async function buildQueryTree(items: Array<any>, result: Array<queryFolder | queryItem>): Promise<void> {
-    const subfolders: Array<any> = [];
+async function buildQueryTree(items: Array<QueryHierarchyItem>, result: Array<queryFolder | queryItem>): Promise<void> {
+    const subfolders: Array<QueryHierarchyItem> = [];
     for (const item of items) {
         if (item.isPublic === false) continue;
         if (item.isFolder) {
@@ -47,9 +52,9 @@ async function buildQueryTree(items: Array<any>, result: Array<queryFolder | que
         }
     }
     for (const item of subfolders) {
-        let children: Array<any> = item.children || [];
+        let children: Array<QueryHierarchyItem> = item.children || [];
         if (children.length === 0) {
-            const folder = await getQueryItem<any>(item.id);
+            const folder = await getQueryItem(item.id);
             children = folder?.children || [];
         }
         const folderEntry: queryFolder = { id: item.id, name: item.name, children: [] };
@@ -61,12 +66,12 @@ async function buildQueryTree(items: Array<any>, result: Array<queryFolder | que
 export async function getQueries(): Promise<Array<queryListEntry>> {
     const queries = await getRootQueries();
     const result: Array<queryListEntry> = [];
-    await collectQueries(queries as Array<any>, result);
+    await collectQueries(queries, result);
     return result.sort(compare);
 }
 
 export async function getQueryType(queryId: string): Promise<number> {
-    const item = await getQueryItem<any>(queryId);
+    const item = await getQueryItem(queryId);
     return item?.queryType ?? 1;
 }
 
@@ -98,7 +103,7 @@ export async function getTreeQueryDepth(queryId: string): Promise<number> {
 export async function getQueryFolders(): Promise<Array<queryFolder | queryItem>> {
     const queries = await getRootQueries();
     const result: Array<queryFolder | queryItem> = [];
-    await buildQueryTree(queries as Array<any>, result);
+    await buildQueryTree(queries, result);
     // Unwrap the top-level "Shared Queries" folder — it is always the root container
     if (result.length === 1 && 'children' in result[0]) {
         return (result[0] as queryFolder).children;
@@ -128,7 +133,7 @@ export async function streamQueryFolders(
     console.time("VR:streamQueryFolders:rootCall");
     const queries = await getRootQueries();
     console.timeEnd("VR:streamQueryFolders:rootCall");
-    let items = (queries as Array<any>).filter(q => q.isPublic !== false);
+    let items = queries.filter(q => q.isPublic !== false);
     if (items.length === 1 && items[0].isFolder && items[0].hasChildren) {
         items = items[0].children || [];
     }
@@ -136,8 +141,8 @@ export async function streamQueryFolders(
     // First pass: collect top-level queries and folders, then sort each
     // alphabetically (matching MS native widgets' convention) before emitting.
     // Queries-before-folders ordering is preserved across the categories.
-    const topQueries: Array<any> = [];
-    const topFolders: Array<any> = [];
+    const topQueries: Array<QueryHierarchyItem> = [];
+    const topFolders: Array<QueryHierarchyItem> = [];
     for (const item of items) {
         if (item.isPublic === false) continue;
         if (item.isFolder) {
@@ -170,7 +175,7 @@ export async function streamQueryFolders(
     // unless future code pre-fetches contents to find the priority folder. Kept
     // intact so the optimization re-engages automatically if the depth or pre-
     // fetch strategy ever changes.
-    let priorityFolder: any = undefined;
+    let priorityFolder: QueryHierarchyItem | undefined = undefined;
     if (priorityQueryId) {
         priorityFolder = topFolders.find(f => containsQueryId(f, priorityQueryId));
         if (priorityFolder) {
@@ -199,10 +204,10 @@ export async function streamQueryFolders(
             .filter(f => f !== priorityFolder)
             .map(async folder => {
                 try {
-                    let children: Array<any> = folder.children || [];
+                    let children: Array<QueryHierarchyItem> = folder.children || [];
                     if (children.length === 0) {
                         perFolderFetchCount++;
-                        const fetched = await getQueryItem<any>(folder.id);
+                        const fetched = await getQueryItem(folder.id);
                         children = fetched?.children || [];
                     }
                     await walkSubtree(children, folder.id, 1, [], onEvent);
@@ -222,18 +227,18 @@ export async function streamQueryFolders(
     console.timeEnd("VR:streamQueryFolders:total");
 }
 
-function containsQueryId(item: any, queryId: string): boolean {
+function containsQueryId(item: QueryHierarchyItem, queryId: string): boolean {
     if (!item) return false;
     if (!item.isFolder) return item.id === queryId;
     if (!item.children) return false;
-    return (item.children as Array<any>).some(c => containsQueryId(c, queryId));
+    return item.children.some(c => containsQueryId(c, queryId));
 }
 
 // Emits all queries at this level before any sub-folders, so queries always appear
 // directly under the folder that contains them (rather than getting pushed below
 // a large sub-folder's contents).
 async function walkSubtree(
-    items: Array<any>,
+    items: Array<QueryHierarchyItem>,
     topId: string,
     depth: number,
     parentChain: string[],
@@ -244,8 +249,8 @@ async function walkSubtree(
     // queries-before-folders preserves the existing UX where queries always
     // appear directly under their parent folder rather than getting pushed
     // below a large sub-folder's contents.
-    const queries: Array<any> = [];
-    const subFolders: Array<any> = [];
+    const queries: Array<QueryHierarchyItem> = [];
+    const subFolders: Array<QueryHierarchyItem> = [];
     for (const item of items) {
         if (item.isPublic === false) continue;
         if (item.isFolder) {
@@ -261,9 +266,9 @@ async function walkSubtree(
     }
     for (const item of subFolders) {
         onEvent({ type: 'folder', topId, parentChain, depth, id: item.id, name: item.name });
-        let children: Array<any> = item.children || [];
+        let children: Array<QueryHierarchyItem> = item.children || [];
         if (children.length === 0) {
-            const folder = await getQueryItem<any>(item.id);
+            const folder = await getQueryItem(item.id);
             children = folder?.children || [];
         }
         await walkSubtree(children, topId, depth + 1, [...parentChain, item.id], onEvent);

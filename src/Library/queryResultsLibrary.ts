@@ -119,7 +119,11 @@ export interface workItemHierachyEntry { id: number, title: string, wit: string,
     size: number, unsized: boolean, percentComplete: string, childrenTotalSize: number, childrenCompletedSize: number,
     hasChildren: boolean, children: Array<workItemHierachyEntry>};
 
-export function newWorkItemHierarchyEntry (id: number, fields: any) : workItemHierachyEntry {
+// `fields` is ADO's untyped field bag — WorkItem['fields'] is {[key: string]: any}
+// in the SDK itself, since the keys are per-project reference names (System.Title,
+// Microsoft.VSTS.Scheduling.Effort, plus any custom field). Referencing the SDK's
+// own type keeps that honest rather than restating `any` here.
+export function newWorkItemHierarchyEntry (id: number, fields: WorkItem['fields']) : workItemHierachyEntry {
     return {id: id,
             title: fields['System.Title'] || "",
             wit: fields['System.WorkItemType'] || "",
@@ -185,7 +189,7 @@ async function enrichWorkItemTree (
         // "Approved" for Proposed; that's the canonical starting color).
         const parentStateCategories = workItemStateColorCategories[witIdx] || [];
         const categoryColorMap = new Map<string, string>();
-        for (const item of parentStateCategories as Array<any>) {
+        for (const item of parentStateCategories) {
             if (!categoryColorMap.has(item.category)) {
                 categoryColorMap.set(item.category, "#" + item.color);
             }
