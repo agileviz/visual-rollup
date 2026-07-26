@@ -40,12 +40,14 @@ module.exports = {
     "coverageThreshold": {
         "src/Library/queryLibrary.ts": {
             "statements": 92,
-            // Branches floor restored to 74 (current actual: 75) after the
-            // 2026-05-09 focused session added an error-isolation test that
-            // exercises the per-folder catch + perFolderErrorCount log paths.
-            // Floor sits one point below the actual to leave headroom for
-            // incidental branch moves.
-            "branches":   74,
+            // Branches floor re-baselined to 71 (current actual: 72.41) on the
+            // 2026-07-25 Jest 29 -> 30 upgrade. This is NOT a coverage
+            // regression: babel-plugin-istanbul 7 instruments more branches, so
+            // the denominator grew 140 -> 174 while covered branches rose
+            // 105 -> 126. Same tests, stricter counting. The earlier floor of 74
+            // was calibrated against Jest 29's instrumentation. Floor still sits
+            // one point below the actual for incidental-move headroom.
+            "branches":   71,
             "functions":  100,
             "lines":      94
         },
@@ -56,7 +58,11 @@ module.exports = {
             // circular-relations cases) plus direct unit tests on the previously
             // unused Proposed-/InProgress-first sort comparators.
             "statements": 94,
-            "branches":   78,
+            // Branches floor re-baselined to 74 (current actual: 75.32) on the
+            // 2026-07-25 Jest 29 -> 30 upgrade, same cause as above: denominator
+            // grew 114 -> 154, covered branches rose 91 -> 116. Previous floor
+            // was 78 under Jest 29's instrumentation.
+            "branches":   74,
             "functions":  100,
             "lines":      99
         },
