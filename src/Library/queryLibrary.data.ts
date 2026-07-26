@@ -1,7 +1,7 @@
 import { QueryHierarchyItem, WorkItem, WorkItemQueryResult, WorkItemStateColor } from "azure-devops-extension-api/WorkItemTracking";
 import { workItemHierachyEntry } from "./queryResultsLibrary";
 
-export let rawRootQueries : Array<QueryHierarchyItem> = JSON.parse (
+export const rawRootQueries : Array<QueryHierarchyItem> = JSON.parse (
 `[
     {
       "id": "ae471a2d-92bf-45c1-9b40-1f5d7776d287",
@@ -413,7 +413,7 @@ export let rawRootQueries : Array<QueryHierarchyItem> = JSON.parse (
  );
 
 
-export let evenMoreQueries = JSON.parse (
+export const evenMoreQueries = JSON.parse (
 `{
     "id": "89626995-3d87-48ca-93f1-6e3c9c5cfbba",
     "name": "Even More Queries",
@@ -505,7 +505,7 @@ export let evenMoreQueries = JSON.parse (
 );
 
 // this is the result for queryType 3 (work items with direct links / OneHop)
-export let queryType2Results : WorkItemQueryResult = JSON.parse (
+export const queryType2Results : WorkItemQueryResult = JSON.parse (
 `{
     "queryType": 3,
     "queryResultType": 2,
@@ -619,7 +619,7 @@ export let queryType2Results : WorkItemQueryResult = JSON.parse (
 );
 
 // this is the result for queryType 1 (flat list of work items)
-export let queryType1Results : WorkItemQueryResult = JSON.parse (
+export const queryType1Results : WorkItemQueryResult = JSON.parse (
 `{
     "queryType": 1,
     "queryResultType": 1,
@@ -662,7 +662,7 @@ export let queryType1Results : WorkItemQueryResult = JSON.parse (
 );
 
 // this is an invalid queryType 4 (to test the check for unknown types of queries in getWorkItemsByQueryID)
-export let queryType4Results : WorkItemQueryResult = JSON.parse (
+export const queryType4Results : WorkItemQueryResult = JSON.parse (
 `{
     "queryType": 4,
     "queryResultType": 1,
@@ -704,7 +704,7 @@ export let queryType4Results : WorkItemQueryResult = JSON.parse (
     }`
 );
 
-export let relatedQueryType1Results : Array<WorkItem> = JSON.parse (
+export const relatedQueryType1Results : Array<WorkItem> = JSON.parse (
 `[
     {
       "id": 1,
@@ -712,7 +712,7 @@ export let relatedQueryType1Results : Array<WorkItem> = JSON.parse (
       "fields": {
         "System.AreaPath": "rmouser",
         "System.TeamProject": "rmouser",
-        "System.IterationPath": "rmouser\Sprint 1",
+        "System.IterationPath": "rmouser\\\\Sprint 1",
         "System.WorkItemType": "Feature",
         "System.State": "New",
         "System.Reason": "New feature",
@@ -793,7 +793,7 @@ export let relatedQueryType1Results : Array<WorkItem> = JSON.parse (
       "fields": {
         "System.AreaPath": "rmouser",
         "System.TeamProject": "rmouser",
-        "System.IterationPath": "rmouser\Sprint 1",
+        "System.IterationPath": "rmouser\\\\Sprint 1",
         "System.WorkItemType": "Feature",
         "System.State": "New",
         "System.Reason": "New feature",
@@ -864,7 +864,7 @@ export let relatedQueryType1Results : Array<WorkItem> = JSON.parse (
 );
 
 // this is the result for queries that return hierarchy of work items
-export let workItemBatchResults : Array<WorkItem> = JSON.parse(
+export const workItemBatchResults : Array<WorkItem> = JSON.parse(
 `[
     {
       "id": 1,
@@ -968,7 +968,7 @@ export let workItemBatchResults : Array<WorkItem> = JSON.parse(
   ]`
 );
 // this is the result for queries that return hierarchy of work items
-export let workItemTypeStatesFeature : Array<WorkItemStateColor> = JSON.parse(
+export const workItemTypeStatesFeature : Array<WorkItemStateColor> = JSON.parse(
 `[
     {
       "name": "New",
@@ -994,7 +994,7 @@ export let workItemTypeStatesFeature : Array<WorkItemStateColor> = JSON.parse(
 );
 
 // this is the result for queries that return hierarchy of work items
-export let workItemTypeStatesPBI : Array<WorkItemStateColor> = JSON.parse(
+export const workItemTypeStatesPBI : Array<WorkItemStateColor> = JSON.parse(
     `[
         {
           "name": "New",
@@ -1025,7 +1025,7 @@ export let workItemTypeStatesPBI : Array<WorkItemStateColor> = JSON.parse(
     );
 
 // this is the query tree used to build the visual before field data is inserted
-export let queryTreeEmptyFields : Array<workItemHierachyEntry> = JSON.parse(
+export const queryTreeEmptyFields : Array<workItemHierachyEntry> = JSON.parse(
 `[
     {
       "id": 1,
@@ -1144,7 +1144,7 @@ export let queryTreeEmptyFields : Array<workItemHierachyEntry> = JSON.parse(
 // IDs are deliberately ≥100 so the auto-mock's getWorkItems dispatch can route
 // any tree-fixture id set to treeQueryFieldResults without colliding with the
 // 1–9 IDs used by queryType1/queryType2 fixtures.
-export let treeQueryResults : WorkItemQueryResult = JSON.parse (
+export const treeQueryResults : WorkItemQueryResult = JSON.parse (
 `{
     "queryType": 2,
     "queryResultType": 2,
@@ -1162,7 +1162,7 @@ export let treeQueryResults : WorkItemQueryResult = JSON.parse (
   }`
 );
 
-export let treeQueryFieldResults : Array<WorkItem> = JSON.parse(
+export const treeQueryFieldResults : Array<WorkItem> = JSON.parse(
 `[
     { "id": 100, "rev": 1, "fields": { "System.WorkItemType": "Feature",             "System.State": "In Progress", "System.Title": "Top feature 100", "Microsoft.VSTS.Common.BacklogPriority": 1, "Microsoft.VSTS.Scheduling.Effort": 13 }, "url": "" },
     { "id": 101, "rev": 1, "fields": { "System.WorkItemType": "Feature",             "System.State": "New",         "System.Title": "Lone feature 101 with no children", "Microsoft.VSTS.Common.BacklogPriority": 2, "Microsoft.VSTS.Scheduling.Effort": 5  }, "url": "" },
@@ -1175,7 +1175,7 @@ export let treeQueryFieldResults : Array<WorkItem> = JSON.parse(
 );
 
 // this is the results of fields batch request for all work items
-export let fieldsBatchRequestResults : Array<WorkItem> = JSON.parse(
+export const fieldsBatchRequestResults : Array<WorkItem> = JSON.parse(
 `[
     {
       "id": 1,

@@ -15,7 +15,7 @@ enum WorkItemExpand {
 // returns an array with each entry a set of parent/children work items
 export async function getWorkItemsByQueryID (queryID: string, treeLevel: number = 1) : Promise<Array<workItemHierachyEntry>> {
 
-    let queryResults = await getQueryResults(queryID);
+    const queryResults = await getQueryResults(queryID);
 
     if (queryResults.queryType == 1) {
         return processQueryType1(queryResults);
@@ -37,7 +37,7 @@ export function createWorkItemBatchRequests (queryResults : WorkItemQueryResult)
 
     // for queryType 2, we get IDs for parents and children
     if (queryResults.queryType === 3) {
-        for (let i in queryResults.workItemRelations) {
+        for (const i in queryResults.workItemRelations) {
             if (queryResults.workItemRelations[i].rel === "System.LinkTypes.Hierarchy-Forward") {
                 if (queryResults.workItemRelations[i].source !== null) {
                     ids.push(queryResults.workItemRelations[i].source.id);
@@ -53,7 +53,7 @@ export function createWorkItemBatchRequests (queryResults : WorkItemQueryResult)
         ids = queryResults.workItems.map( wi => wi.id);
     }
 
-    let batchRequestWorkItemRelations : WorkItemBatchGetRequest = {
+    const batchRequestWorkItemRelations : WorkItemBatchGetRequest = {
         $expand: 1,
         asOf: queryResults.asOf,
         fields: [],
@@ -61,7 +61,7 @@ export function createWorkItemBatchRequests (queryResults : WorkItemQueryResult)
         ids: ids
     };
 
-    let fields = [
+    const fields = [
         "System.Id",
         "System.WorkItemType",
         "System.Title",
@@ -71,7 +71,7 @@ export function createWorkItemBatchRequests (queryResults : WorkItemQueryResult)
         "Microsoft.VSTS.Scheduling.StoryPoints"
       ];
 
-    let batchRequestWorkItemFields : WorkItemBatchGetRequest = {
+    const batchRequestWorkItemFields : WorkItemBatchGetRequest = {
         $expand: 0,
         asOf: queryResults.asOf,
         fields: fields,
@@ -79,7 +79,7 @@ export function createWorkItemBatchRequests (queryResults : WorkItemQueryResult)
         ids: ids
     };
 
-    let batchRequests : Array<WorkItemBatchGetRequest> = [batchRequestWorkItemRelations, batchRequestWorkItemFields]
+    const batchRequests : Array<WorkItemBatchGetRequest> = [batchRequestWorkItemRelations, batchRequestWorkItemFields]
 
     return batchRequests;
 }
@@ -102,7 +102,7 @@ export function createWorkItemBatchRequest(asOf : Date, expand : number, ids : A
         ];
     }
 
-    let workItemBatchRequest : WorkItemBatchGetRequest = {
+    const workItemBatchRequest : WorkItemBatchGetRequest = {
         $expand: expand,
         asOf: asOf,
         fields: fields,
@@ -119,9 +119,11 @@ export interface workItemHierachyEntry { id: number, title: string, wit: string,
     size: number, unsized: boolean, percentComplete: string, childrenTotalSize: number, childrenCompletedSize: number,
     hasChildren: boolean, children: Array<workItemHierachyEntry>};
 
-interface newWorkItemHierarchyEntryChildren {id: number, children: Array<newWorkItemHierarchyEntryChildren>};
-
-export function newWorkItemHierarchyEntry (id: number, fields: any) : workItemHierachyEntry {
+// `fields` is ADO's untyped field bag — WorkItem['fields'] is {[key: string]: any}
+// in the SDK itself, since the keys are per-project reference names (System.Title,
+// Microsoft.VSTS.Scheduling.Effort, plus any custom field). Referencing the SDK's
+// own type keeps that honest rather than restating `any` here.
+export function newWorkItemHierarchyEntry (id: number, fields: WorkItem['fields']) : workItemHierachyEntry {
     return {id: id,
             title: fields['System.Title'] || "",
             wit: fields['System.WorkItemType'] || "",
@@ -161,9 +163,9 @@ async function enrichWorkItemTree (
 
     witAverages(uniqueWorkItemTypes, workItemTree);
 
-    for (let parent of workItemTree) {
+    for (const parent of workItemTree) {
 
-        let categoryColor = witCategoryColor(parent.wit, parent.state);
+        const categoryColor = witCategoryColor(parent.wit, parent.state);
         parent.stateCategory = categoryColor.stateCategory;
         parent.stateColor = categoryColor.stateColor;
 
@@ -185,9 +187,9 @@ async function enrichWorkItemTree (
         // Map keyed by category, first encountered color wins — matches ADO's
         // state-list ordering (typically workflow order, so "New" wins over
         // "Approved" for Proposed; that's the canonical starting color).
-        let parentStateCategories = workItemStateColorCategories[witIdx] || [];
+        const parentStateCategories = workItemStateColorCategories[witIdx] || [];
         const categoryColorMap = new Map<string, string>();
-        for (const item of parentStateCategories as Array<any>) {
+        for (const item of parentStateCategories) {
             if (!categoryColorMap.has(item.category)) {
                 categoryColorMap.set(item.category, "#" + item.color);
             }
@@ -198,8 +200,8 @@ async function enrichWorkItemTree (
 
         let completedCount = 0;
         let nonRemovedCount = 0;
-        for (let child of parent.children) {
-            let cc = witCategoryColor(child.wit, child.state);
+        for (const child of parent.children) {
+            const cc = witCategoryColor(child.wit, child.state);
             child.stateCategory = cc.stateCategory;
             child.stateColor = cc.stateColor;
 
@@ -230,15 +232,15 @@ async function enrichWorkItemTree (
     return workItemTree.sort(workItemsByPriority);
 
     function witCategoryColor (wit: string, state: string) : {stateCategory: string, stateColor: string } {
-        let categoryColor = {stateCategory: "Removed", stateColor: ""};
+        const categoryColor = {stateCategory: "Removed", stateColor: ""};
         const witIdx = uniqueWorkItemTypes.indexOf(wit);
         if (witIdx === -1) return categoryColor;
-        let thisWorkItemsStateCategories = workItemStateColorCategories[witIdx];
+        const thisWorkItemsStateCategories = workItemStateColorCategories[witIdx];
         if (!thisWorkItemsStateCategories) return categoryColor;
-        let thisWorkItemsCurrentStateCategory = thisWorkItemsStateCategories.find(s => s.name === state);
+        const thisWorkItemsCurrentStateCategory = thisWorkItemsStateCategories.find(s => s.name === state);
         if (thisWorkItemsCurrentStateCategory != null) {
-            categoryColor.stateCategory = thisWorkItemsCurrentStateCategory?.category,
-            categoryColor.stateColor = thisWorkItemsCurrentStateCategory?.color
+            categoryColor.stateCategory = thisWorkItemsCurrentStateCategory?.category;
+            categoryColor.stateColor = thisWorkItemsCurrentStateCategory?.color;
         }
         return categoryColor;
     }
@@ -247,16 +249,16 @@ async function enrichWorkItemTree (
 export async function processQueryType1 (queryResults: WorkItemQueryResult) : Promise<Array<workItemHierachyEntry>> {
 
     // get IDs from query results
-    let ids = queryResults.workItems.map( wi => wi.id);
-    let relatedWorkItemBatchRequest = createWorkItemBatchRequest (queryResults.asOf, WorkItemExpand.Relations, ids);
+    const ids = queryResults.workItems.map( wi => wi.id);
+    const relatedWorkItemBatchRequest = createWorkItemBatchRequest (queryResults.asOf, WorkItemExpand.Relations, ids);
 
     // get work items related (linked) to those IDs
-    let relatedWorkItemResults : Array<WorkItem> = await getWorkItems(relatedWorkItemBatchRequest);
+    const relatedWorkItemResults : Array<WorkItem> = await getWorkItems(relatedWorkItemBatchRequest);
 
     // add all child IDs to ids
-    for (let topWI of relatedWorkItemResults) {
+    for (const topWI of relatedWorkItemResults) {
         if (typeof topWI.relations != 'undefined') {
-            for (let link of topWI.relations) {
+            for (const link of topWI.relations) {
                 if (link.attributes.name === "Child") {
                     const lastSegment = link.url.substring(link.url.lastIndexOf("/") + 1);
                     if (/^\d+$/.test(lastSegment)) {
@@ -268,27 +270,27 @@ export async function processQueryType1 (queryResults: WorkItemQueryResult) : Pr
     }
 
     // batch request for work item fields
-    let workItemFieldsBatchRequest = createWorkItemBatchRequest (queryResults.asOf, WorkItemExpand.None, ids);
+    const workItemFieldsBatchRequest = createWorkItemBatchRequest (queryResults.asOf, WorkItemExpand.None, ids);
 
     // get work item fields for all IDs
-    let workItemFieldsResults : Array<WorkItem> = await getWorkItems(workItemFieldsBatchRequest);
+    const workItemFieldsResults : Array<WorkItem> = await getWorkItems(workItemFieldsBatchRequest);
 
     // make a map to quickly find each id in the fields query array
-    let fieldIdMap = new Map();
-    for (let ndx in workItemFieldsResults) {
+    const fieldIdMap = new Map();
+    for (const ndx in workItemFieldsResults) {
         fieldIdMap.set(workItemFieldsResults[ndx].id, ndx);
     }
 
-    let workItemTree : Array<workItemHierachyEntry> = [];
-    let workItemTypes : Array<string> = [];
+    const workItemTree : Array<workItemHierachyEntry> = [];
+    const workItemTypes : Array<string> = [];
 
-    for (let topWI of relatedWorkItemResults) {
+    for (const topWI of relatedWorkItemResults) {
 
         workItemTypes.push(topWI.fields['System.WorkItemType']);
-        let children : Array<number> = [];
+        const children : Array<number> = [];
 
         if (typeof topWI.relations != 'undefined') {
-            for (let link of topWI.relations) {
+            for (const link of topWI.relations) {
                 if (link.attributes.name === "Child") {
                     const lastSegment = link.url.substring(link.url.lastIndexOf("/") + 1);
                     if (/^\d+$/.test(lastSegment)) {
@@ -306,18 +308,18 @@ export async function processQueryType1 (queryResults: WorkItemQueryResult) : Pr
         const topNdx = fieldIdMap.get(topWI.id);
         if (topNdx === undefined) continue;
 
-        let workItemEnrty = newWorkItemHierarchyEntry(topWI.id, workItemFieldsResults[topNdx].fields);
+        const workItemEnrty = newWorkItemHierarchyEntry(topWI.id, workItemFieldsResults[topNdx].fields);
         workItemEnrty.children = children
             .filter(id => fieldIdMap.get(id) !== undefined)
             .map(id => newWorkItemHierarchyEntry(id, workItemFieldsResults[fieldIdMap.get(id)].fields));
         workItemEnrty.hasChildren = workItemEnrty.children.length > 0;
-        for (let child of workItemEnrty.children) {
+        for (const child of workItemEnrty.children) {
             workItemTypes.push(child.wit);
         }
         workItemTree.push(workItemEnrty);
     }
 
-    let uniqueWorkItemTypes = Array.from(new Set(workItemTypes.map((wit) => wit)));
+    const uniqueWorkItemTypes = Array.from(new Set(workItemTypes.map((wit) => wit)));
     return enrichWorkItemTree(workItemTree, uniqueWorkItemTypes);
 }
 
@@ -532,18 +534,18 @@ interface WitSizeAverage {wit: string, count: number, unsized: number, sizedTota
 
 // calculates average size for each work item type for use with unsized items
 function witAverages (uniqueWorkItemTypes: Array<string>, workItemTree: Array<workItemHierachyEntry>) {
-    let witSizeAverages: Array<WitSizeAverage> = uniqueWorkItemTypes.map(wit => { return {wit: wit, count: 0, unsized: 0, sizedTotal: 0, average: 0 };})
+    const witSizeAverages: Array<WitSizeAverage> = uniqueWorkItemTypes.map(wit => { return {wit: wit, count: 0, unsized: 0, sizedTotal: 0, average: 0 };})
 
-    for (let parent of workItemTree) {
+    for (const parent of workItemTree) {
         processWorkItem (witSizeAverages[uniqueWorkItemTypes.indexOf(parent.wit)], parent);
 
-        for (let child of parent.children) {
+        for (const child of parent.children) {
             processWorkItem (witSizeAverages[uniqueWorkItemTypes.indexOf(child.wit)], child);
         }
     }
 
-    for (let ndx in witSizeAverages) {
-        let sizedCount = witSizeAverages[ndx].count - witSizeAverages[ndx].unsized;
+    for (const ndx in witSizeAverages) {
+        const sizedCount = witSizeAverages[ndx].count - witSizeAverages[ndx].unsized;
         if (sizedCount > 0) {
             witSizeAverages[ndx].average = witSizeAverages[ndx].sizedTotal / sizedCount;
         } else {
@@ -551,10 +553,10 @@ function witAverages (uniqueWorkItemTypes: Array<string>, workItemTree: Array<wo
         }
     }
 
-    for (let parentNdx in workItemTree) {
-        for (let childNdx in workItemTree[parentNdx].children) {
+    for (const parentNdx in workItemTree) {
+        for (const childNdx in workItemTree[parentNdx].children) {
             if (workItemTree[parentNdx].children[childNdx].unsized) {
-                let witNdx = uniqueWorkItemTypes.indexOf(workItemTree[parentNdx].children[childNdx].wit);
+                const witNdx = uniqueWorkItemTypes.indexOf(workItemTree[parentNdx].children[childNdx].wit);
                 workItemTree[parentNdx].children[childNdx].size = witSizeAverages[witNdx].average;
             }
         }
